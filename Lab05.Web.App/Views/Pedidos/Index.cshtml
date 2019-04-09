@@ -1,0 +1,149 @@
+﻿@{
+    ViewData["Title"] = "Index";
+}
+@section Scripts{
+    <script>
+
+        var t;
+
+        function FormateoFecha(fechaRaw) {
+            var anno = fechaRaw.substring(0, 4);
+            var mes = fechaRaw.substring(5, 7);
+            var dia = fechaRaw.substring(8, 10);
+
+            fechaFormateada = dia + " - " + mes + " - " + anno;
+            return fechaFormateada;
+        }
+
+        $(document).ready(function () {
+
+            //lab05.Init.Pedidos();
+
+            var nombre;
+            var id;
+            var pais;
+
+            $('#b1').click(function (e) {
+
+                nombre = $('#i2').val();
+                id = $('#i1').val();
+                pais = $('#i3').val();
+
+                var url = "http://localhost:50467/api/Pedidos?";
+
+                if (nombre != "") {
+                    url += "&nombre=" + nombre;
+                }
+                if (id != "") {
+                    url += "&id=" + id;
+                }
+                if (pais != "all") {
+                    url += "&pais=" + pais;
+                }
+
+                var html = "";
+
+                $.ajax({
+                    url: url,
+                    type: "GET",
+                    success: function (e) {
+                        console.log('success');
+                        console.log(e);          
+                        html = "";
+
+                        if (t != undefined) t.destroy();
+
+                            
+                        
+
+                        for (var i = 0; i < e.length; i++) {
+                            html += '<tr><td>' + e[i].orderID +
+                                '</td><td>' + FormateoFecha(e[i].orderDate) +
+                                '</td><td>' + e[i].shippedDate +
+                               '</td><td>' + e[i].shipName +
+                               '</td><td>' + e[i].shipViaNavigation.companyName +
+                                '</td></tr>';
+                            $('tbody').html(html);
+                        }
+
+                        t = $('table').DataTable();
+
+                    },
+                    error: function (e) {
+                        console.log('error');
+                    }
+                });
+            });
+            
+        });
+    </script>
+}
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3>Buscar Pedidos</h3>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>Número de Pedido</label>
+                            <input type="text" id="i1" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Nombre Producto</label>
+                            <input type="text" id="i2" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>País destinatario</label>
+                            <select id="i3" class="form-control" asp-items="ViewBag.Paises">
+                                <option value="all">Todos los Países</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 text-right">
+                        <button id="b1" class="btn btn-success">Buscar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <td><b>ID Pedido</b></td>
+            <td><b>Fecha Pedido</b></td>
+            <td><b>Fecha Envio</b></td>
+            <td><b>Destinatario</b></td>
+            <td><b>Empresa Transporte</b></td>
+        </tr>
+    </thead>
+    <tbody>
+        @*@foreach (var item in Model)
+        {
+            <tr>
+                <td><a href="/pedidos/ficha/@item.OrderID">@item.OrderID</a></td>
+                <td>@(item.OrderDate.HasValue ? item.OrderDate.Value.ToShortDateString() : "")</td>
+                <td>@(item.ShippedDate.HasValue ? item.ShippedDate.Value.ToShortDateString() : "")</td>
+                <td>
+                    @item.Customers.CompanyName<br />
+                    <small>@item.ShipAddress</small><br />
+                    <small>@item.ShipCity (@item.ShipCountry)</small>
+                </td>
+                <td>@item.Shippers.CompanyName</td>
+            </tr>
+        }*@
+    </tbody>
+</table>
+<br />
+<br />
+
